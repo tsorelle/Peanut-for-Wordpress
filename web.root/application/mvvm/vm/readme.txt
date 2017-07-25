@@ -1,0 +1,1 @@
+Application view model source goes here.
