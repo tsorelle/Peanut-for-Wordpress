@@ -46,8 +46,9 @@ add_action( 'wp_enqueue_scripts', 'peanut_scripts' );
 function peanut_scripts() {
     if (\Tops\ui\TViewModelManager::hasVm()) {
         $currentTheme = wp_get_theme();
-        $themeSection =  'theme-'.strtolower($currentTheme->name);
-        $bootstrapLib = \Tops\sys\TConfiguration::getValue('bootstrap.library',$themeSection);
+        $themeSection =  strtolower($currentTheme->name);
+        $themeIni = \Tops\sys\TIniSettings::Create('themes.ini');
+        $bootstrapLib = $themeIni->getValue('bootstrap.library',$themeSection);
         $dependencies = array ('peanut-head-load-js');
         if ($bootstrapLib !== false) {
             $dependencies[] = $bootstrapLib;
