@@ -14,7 +14,7 @@
 ///<reference path="../../../../application/assets/js/libraries/TestLib.ts"/>
 
 // Module
-namespace Quaker {
+namespace Bookstore {
     // view model
     export class TestPageViewModel  extends Peanut.ViewModelBase {
         messageText = ko.observable('');

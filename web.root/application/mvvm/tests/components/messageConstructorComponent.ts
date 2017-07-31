@@ -1,7 +1,7 @@
 /**
  * Created by Terry on 6/4/2017.
  */
-namespace Quaker {
+namespace Bookstore {
     export class messageConstructorComponent {
         message : KnockoutObservable<string>;
         constructor(message: string) {
