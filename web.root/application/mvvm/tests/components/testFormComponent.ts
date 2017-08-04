@@ -1,7 +1,7 @@
 /**
  * Created by Terry on 5/25/2017.
  */
-namespace Quaker {
+namespace Peanut {
     export class testFormComponent {
         userInput = ko.observable('');
         message = ko.observable('');

@@ -7,14 +7,14 @@
 /// <reference path='../../../../wp-content/plugins/peanut/typings/knockout/knockout.d.ts' />
 
 // used for these test routines.
-///<reference path="../../../..//wp-content/plugins/peanut/pnut/core/WaitMessage.ts"/>
+///<reference path="../../../../wp-content/plugins/peanut/pnut/core/WaitMessage.ts"/>
 ///<reference path="../components/testFormComponent.ts"/>
 ///<reference path="../components/messageConstructorComponent.ts"/>
 ///<reference path="../../../../wp-content/plugins/peanut/typings/lodash/index.d.ts"/>
 ///<reference path="../../../../application/assets/js/libraries/TestLib.ts"/>
 
 // Module
-namespace Bookstore {
+namespace Peanut {
     // view model
     export class TestPageViewModel  extends Peanut.ViewModelBase {
         messageText = ko.observable('');
@@ -195,7 +195,7 @@ namespace Bookstore {
             me.application.hideServiceMessages();
             me.application.showWaiter('Testing service...');
             // me.services.executeService('admin.HelloWorld', request,
-            me.services.executeService('HelloWorld', request,
+            me.services.executeService('PeanutTest::HelloWorld', request,
                 function (serviceResponse: Peanut.IServiceResponse) {
                     me.application.hideWaiter();
                     if (serviceResponse.Result == Peanut.serviceResultSuccess) {
@@ -225,8 +225,8 @@ namespace Bookstore {
                 (returnFuncton: (vm: any) => void) => {
                     console.log('accachComponent - returnFunction');
                     this.application.loadResources('tests/testFormComponent.js', () => {
-                        console.log('instatiate testForm component')
-                        me.testForm = new Quaker.testFormComponent();
+                        console.log('instatiate testForm component');
+                        me.testForm = new Peanut.testFormComponent();
                         me.testForm.setMessage('Watch this space.');
                         me.messagePanel('form');
                         // return instance via the final function.
