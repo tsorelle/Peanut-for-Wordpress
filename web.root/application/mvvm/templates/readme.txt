@@ -1,1 +1,1 @@
-Application template files go here.
+Template files for knockout view models here

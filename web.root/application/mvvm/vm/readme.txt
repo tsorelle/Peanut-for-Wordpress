@@ -1,1 +1,1 @@
-Application view model source goes here.
+Knockout component view models here

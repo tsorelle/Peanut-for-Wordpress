@@ -3,19 +3,19 @@
  */
 
 // required for all view models:
-/// <reference path="../../../../wp-content/plugins/peanut/pnut/core/ViewModelBase.ts" />
+/// <reference path='../../../../wp-content/plugins/peanut/pnut/core/ViewModelBase.ts' />
 /// <reference path='../../../../wp-content/plugins/peanut/typings/knockout/knockout.d.ts' />
 
 // used for these test routines.
-///<reference path="../../../../wp-content/plugins/peanut/pnut/core/WaitMessage.ts"/>
-///<reference path="../components/testFormComponent.ts"/>
-///<reference path="../components/messageConstructorComponent.ts"/>
-///<reference path="../../../../wp-content/plugins/peanut/typings/lodash/index.d.ts"/>
-///<reference path="../../../../application/assets/js/libraries/TestLib.ts"/>
+/// <reference path='../../../../wp-content/plugins/peanut/pnut/core/WaitMessage.ts'/>
+/// <reference path='../components/testFormComponent.ts'/>
+/// <reference path='../components/messageConstructorComponent.ts'/>
+/// <reference path='../../../../wp-content/plugins/peanut/typings/lodash/index.d.ts'/>
+/// <reference path='../../../../application/assets/js/libraries/TestLib.ts'/>
 
 // Module
 namespace Peanut {
-    // view model
+    // TestPage view model
     export class TestPageViewModel  extends Peanut.ViewModelBase {
         messageText = ko.observable('');
 

@@ -17,13 +17,13 @@
         <div>
             <button data-bind="click:onShowWaiter" >Show Waiter</button>
         </div>
-        <div>
-            <button data-bind="click:onShowError" >Show Error</button>
-        </div>
+            <div>
+                <button data-bind="click:onShowError" >Show Error</button>
+            </div>
 
-        <div>
-            <button data-bind="click:onService" >Run Service</button>
-        </div>
+            <div>
+                <button data-bind="click:onService" >Run Service</button>
+            </div>
         <div data-bind="visible:messagePanel() == 'button'">
             <button data-bind="click:onShowForm">Show form component</button>
         </div>
@@ -44,7 +44,7 @@
                         <h4 class="modal-title">Test Modal</h4>
                     </div>
                     <div class="modal-body">
-                        <p>This is a test view model</p>
+                            <p>This is a test view model</p>
                     </div>
                     <div class="modal-footer">
                         <a href="#" data-dismiss="modal">Close</a>
