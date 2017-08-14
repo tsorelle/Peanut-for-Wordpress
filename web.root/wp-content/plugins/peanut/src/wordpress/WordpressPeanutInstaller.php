@@ -17,10 +17,8 @@ class WordpressPeanutInstaller extends PeanutInstaller
 
     private function parseConfigDefinition($line) {
         $line = trim($line);
-        $prefix = substr($line,0,6);
         if (strlen($line) > 7 && substr($line,0,6) == 'define' ) {
             $parts = explode(');', $line);
-            // $line = substr($parts[0], 6);
             $line = str_replace("'", '', substr($parts[0], 7));
             $parts = explode(',', $line);
             if (sizeof($parts) > 1) {
@@ -32,11 +30,11 @@ class WordpressPeanutInstaller extends PeanutInstaller
         }
         return false;
     }
+
     public function getNativeDbConfiguration()
     {
         $result = new \stdClass();
         $foundCount = 0;
-
         $configfile = TPath::getFileRoot().'wp-config.php';
         $lines = file($configfile);
         foreach($lines as $line) {
@@ -49,7 +47,6 @@ class WordpressPeanutInstaller extends PeanutInstaller
                     $result->database = $def->value;
                     $foundCount++;
                     break;
-
                 case 'DB_USER' :
                     $result->user = $def->value;
                     $foundCount++;
@@ -62,6 +59,7 @@ class WordpressPeanutInstaller extends PeanutInstaller
                     if ($def->value != 'localhost') {
                         $result->server = $def->value;
                     }
+                    $foundCount++;
                     break;
             }
             if ($foundCount == 4) {
@@ -70,10 +68,5 @@ class WordpressPeanutInstaller extends PeanutInstaller
         }
 
         return ($foundCount > 2 ?  $result : false);
-
-    }
-    public function testGetNativeDbConfiguration()
-    {
-        return $this->getNativeDbConfiguration();
     }
 }
