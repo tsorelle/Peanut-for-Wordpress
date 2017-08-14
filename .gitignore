@@ -46,3 +46,7 @@
 /web.root/wp-content/plugins/peanut/src/tops
 /web.root/wp-content/plugins/peanut/typings/
 /web.root/info.php
+/web.root/application/install/
+/web.root/application/config/peanut-bootstrap.php
+/web.root/application/config/settings.php
+/web.root/wp-content/plugins/peanut/src/peanut/
