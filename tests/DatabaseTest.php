@@ -24,12 +24,10 @@ class DatabaseTest extends TestCase
         $this->assertNotEmpty($actual->connections);
         $keyExists=array_key_exists('wordpress',$actual->connections);
         $this->assertTrue($keyExists);
-        $props = $actual->connections['wordpress'];
-        $propCount = sizeof($props);
-        $expected = 3;
-        $this->assertEquals($expected, $propCount);
-
-
+        $config = $actual->connections['wordpress'];
+        $this->assertNotEmpty($config->user);
+        $this->assertNotEmpty($config->pwd);
+        $this->assertNotEmpty($config->database);
     }
 
 }

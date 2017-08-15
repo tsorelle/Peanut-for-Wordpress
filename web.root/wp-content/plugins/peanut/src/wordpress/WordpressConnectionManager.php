@@ -33,7 +33,7 @@ class WordpressConnectionManager extends TConnectionManager
 
     public function getNativeConfiguration()
     {
-        $config = array();
+        $config = new \stdClass();
         $foundCount = 0;
         $configfile = TPath::getFileRoot().'wp-config.php';
         $lines = file($configfile);
@@ -44,20 +44,20 @@ class WordpressConnectionManager extends TConnectionManager
             }
             switch ($def->key) {
                 case 'DB_NAME' :
-                    $config['database'] = $def->value;
+                    $config->database = $def->value;
                     $foundCount++;
                     break;
                 case 'DB_USER' :
-                    $config['user'] = $def->value;
+                    $config->user = $def->value;
                     $foundCount++;
                     break;
                 case 'DB_PASSWORD' :
-                    $config['pwd'] = $def->value;
+                    $config->pwd = $def->value;
                     $foundCount++;
                     break;
                 case 'DB_HOST' :
                     if ($def->value != 'localhost') {
-                        $config['server'] = $def->value;
+                        $config->server = $def->value;
                     }
                     $foundCount++;
                     break;
