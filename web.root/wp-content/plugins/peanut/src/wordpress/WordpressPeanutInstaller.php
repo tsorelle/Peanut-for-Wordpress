@@ -14,59 +14,6 @@ use Tops\sys\TPath;
 
 class WordpressPeanutInstaller extends PeanutInstaller
 {
+    // todo: to be implemented
 
-    private function parseConfigDefinition($line) {
-        $line = trim($line);
-        if (strlen($line) > 7 && substr($line,0,6) == 'define' ) {
-            $parts = explode(');', $line);
-            $line = str_replace("'", '', substr($parts[0], 7));
-            $parts = explode(',', $line);
-            if (sizeof($parts) > 1) {
-                $result = new \stdClass();
-                $result->key = trim($parts[0]);
-                $result->value = trim($parts[1]);
-                return $result;
-            }
-        }
-        return false;
-    }
-
-    public function getNativeDbConfiguration()
-    {
-        $result = new \stdClass();
-        $foundCount = 0;
-        $configfile = TPath::getFileRoot().'wp-config.php';
-        $lines = file($configfile);
-        foreach($lines as $line) {
-            $def = $this->parseConfigDefinition($line);
-            if ($def === false) {
-                continue;
-            }
-            switch ($def->key) {
-                case 'DB_NAME' :
-                    $result->database = $def->value;
-                    $foundCount++;
-                    break;
-                case 'DB_USER' :
-                    $result->user = $def->value;
-                    $foundCount++;
-                    break;
-                case 'DB_PASSWORD' :
-                    $result->pwd = $def->value;
-                    $foundCount++;
-                    break;
-                case 'DB_HOST' :
-                    if ($def->value != 'localhost') {
-                        $result->server = $def->value;
-                    }
-                    $foundCount++;
-                    break;
-            }
-            if ($foundCount == 4) {
-                break;
-            }
-        }
-
-        return ($foundCount > 2 ?  $result : false);
-    }
 }
