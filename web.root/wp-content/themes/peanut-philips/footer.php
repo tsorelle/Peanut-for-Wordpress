@@ -8,8 +8,6 @@
  */
 ?>
 
-
-
 <div class="footer-area">
     <div class="container">
         <div class="row">
@@ -28,6 +26,6 @@
 
 </body>
 <?php
-    \Tops\ui\TViewModelManager::RenderStartScript();
+    \Peanut\sys\ViewModelManager::RenderStartScript();
 ?>
 </html>

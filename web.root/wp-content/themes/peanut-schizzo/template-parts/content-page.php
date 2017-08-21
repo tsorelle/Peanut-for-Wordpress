@@ -13,7 +13,7 @@
 	<header class="entry-header">
 		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 	</header><!-- .entry-header -->
-    <?php  \Tops\ui\TViewModelManager::RenderMessageElements(); ?>
+    <?php  \Peanut\sys\ViewModelManager::RenderMessageElements(); ?>
 
 	<div class="entry-content">
 		<?php

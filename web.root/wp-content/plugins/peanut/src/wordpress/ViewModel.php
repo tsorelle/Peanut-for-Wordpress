@@ -10,13 +10,13 @@ namespace Tops\wordpress;
 use \Tops\sys\Request;
 use Tops\sys\TConfiguration;
 use Tops\sys\TPath;
-use Tops\ui\TViewModelManager;
+use Peanut\sys\ViewModelManager;
 
 
-class TViewModel
+class ViewModel
 {
     /**
-     * @var TViewModel
+     * @var ViewModel
      */
     public $pathAlias;
     public $vmName;
@@ -32,7 +32,7 @@ class TViewModel
      */
     public static function isVmPage()
     {
-        return TViewModelManager::hasVm();
+        return ViewModelManager::hasVm();
     }
 
     /**
@@ -95,7 +95,7 @@ class TViewModel
         $name = self::getVmPathFromRequest($request);
         if ($name)
         {
-            return \Tops\ui\TViewModelManager::getViewModelSettings($name);
+            return \Peanut\sys\ViewModelManager::getViewModelSettings($name);
         }
         return false;
     }

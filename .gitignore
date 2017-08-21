@@ -51,3 +51,6 @@
 /web.root/application/config/settings.php
 /web.root/wp-content/plugins/peanut/src/peanut/
 /tests/files/tmp/
+/web.root/application/assets/themes/
+/web.root/application/assets/js/libraries/TestLib.js
+/web.root/application/assets/templates/default-page.html

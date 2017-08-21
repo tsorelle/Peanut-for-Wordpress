@@ -16,4 +16,8 @@ class WordpressPeanutInstaller extends PeanutInstaller
 {
     // todo: to be implemented
 
+    public function doCustomSetup()
+    {
+        // TODO: Implement doCustomSetup() method.
+    }
 }

@@ -13,7 +13,7 @@ License: GPLv2 or later
 Text Domain: peanut
 */
 use Tops\sys\TStrings;
-use Tops\ui\TViewModelManager;
+use Peanut\sys\ViewModelManager;
 
 add_action( 'init', 'peanut_initialize' );
 function peanut_initialize() {
@@ -36,15 +36,24 @@ function peanut_initialize() {
             header('Content-type: application/json');
             print json_encode($response);
             exit;
+            break;
         default :
-            $vm = \Tops\wordpress\TViewModel::Initialize($request);
+            if (substr($pathInfo,0,8) == '/peanut/') {
+                $content = \Peanut\sys\ViewModelPageBuilder::Build(substr($pathInfo,8));
+                // $content = file_get_contents("$fileRoot/application/assets/templates/default-page.html");
+                print $content;
+                exit;
+            }
+            else {
+                $vm = \Tops\wordpress\ViewModel::Initialize($request);
+            }
             break;
     }
 }
 
 add_action( 'wp_enqueue_scripts', 'peanut_scripts' );
 function peanut_scripts() {
-    if (\Tops\ui\TViewModelManager::hasVm()) {
+    if (\Peanut\sys\ViewModelManager::hasVm()) {
         $currentTheme = wp_get_theme();
         $themeSection =  strtolower($currentTheme->name);
         $themeIni = \Tops\sys\TIniSettings::Create('themes.ini');
@@ -57,7 +66,7 @@ function peanut_scripts() {
         $optimized = \Tops\sys\TConfiguration::getBoolean('optimize','peanut',true);
         $loaderScript = $optimized ? 'dist/loader.min.js' : 'core/PeanutLoader.js';
         $dir = plugin_dir_url(__FILE__);
-        $peanutVersion = TViewModelManager::GetPeanutVersion();
+        $peanutVersion = ViewModelManager::GetPeanutVersion();
         wp_enqueue_script('peanut-head-load-js', plugin_dir_url(__FILE__).'js/libraries/head.load.js');
         wp_enqueue_script('peanut-knockout-js', plugin_dir_url(__FILE__).'js/libraries/knockout-3.4.2-debug.js');
         wp_enqueue_script('peanut-loader-js', plugin_dir_url(__FILE__).'pnut/'.$loaderScript,
@@ -69,10 +78,10 @@ add_filter('the_content','peanut_content');
 function peanut_content($input)
 {
     /**
-     * @var \Tops\wordpress\TViewModel
+     * @var \Tops\wordpress\ViewModel
      */
-    $vmInfo = \Tops\ui\TViewModelManager::getViewModelInfo();
-         // \Tops\wordpress\TViewModel::getViewModelInfo();
+    $vmInfo = \Peanut\sys\ViewModelManager::getViewModelInfo();
+         // \Tops\wordpress\ViewModel::getViewModelInfo();
     if ($vmInfo !== false && $vmInfo->view != 'content') {
         $fileRoot = realpath(__DIR__.'/../../..');
         $content = file_get_contents($fileRoot . '/' . $vmInfo->view);

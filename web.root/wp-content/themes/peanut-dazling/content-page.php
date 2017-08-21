@@ -11,7 +11,7 @@
 		<h1 class="entry-title"><?php the_title(); ?></h1>
 	</header><!-- .entry-header -->
     <?php
-    \Tops\ui\TViewModelManager::RenderMessageElements();
+    \Peanut\sys\ViewModelManager::RenderMessageElements();
     ?>
 	<div class="entry-content">
 		<?php the_content(); ?>

@@ -35,6 +35,6 @@
 
 </body>
 <?php
-    \Tops\ui\TViewModelManager::RenderStartScript();
+    \Peanut\sys\ViewModelManager::RenderStartScript();
 ?>
 </html>
