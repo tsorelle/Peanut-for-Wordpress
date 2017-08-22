@@ -8,8 +8,6 @@
 
 namespace Tops\wordpress;
 use \Tops\sys\Request;
-use Tops\sys\TConfiguration;
-use Tops\sys\TPath;
 use Peanut\sys\ViewModelManager;
 
 
@@ -95,7 +93,12 @@ class ViewModel
         $name = self::getVmPathFromRequest($request);
         if ($name)
         {
-            return \Peanut\sys\ViewModelManager::getViewModelSettings($name);
+            $settings = \Peanut\sys\ViewModelManager::getViewModelSettings($name);
+            if (!empty($settings)) {
+                ViewModelManager::authorize($settings);
+            }
+            return $settings;
+
         }
         return false;
     }
