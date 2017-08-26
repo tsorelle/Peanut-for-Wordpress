@@ -54,3 +54,4 @@
 /web.root/application/assets/themes/
 /web.root/application/assets/js/libraries/TestLib.js
 /web.root/application/assets/templates/default-page.html
+/web.root/wp-content/plugins/peanut/src/.htaccess

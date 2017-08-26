@@ -12,6 +12,8 @@ Author URI: https://github.com/tsorelle
 License: GPLv2 or later
 Text Domain: peanut
 */
+
+use Peanut\sys\PeanutSettings;
 use Tops\sys\TStrings;
 use Peanut\sys\ViewModelManager;
 
@@ -38,15 +40,15 @@ function peanut_initialize() {
             exit;
             break;
         default :
-            if (substr($pathInfo,0,8) == '/peanut/') {
-                $content = \Peanut\sys\ViewModelPageBuilder::Build(substr($pathInfo,8));
-                // $content = file_get_contents("$fileRoot/application/assets/templates/default-page.html");
+            $vmName = ViewModelManager::ExtractVmName($pathInfo);
+            $peanutUrl = PeanutSettings::GetPeanutUrl();
+            if (strpos($vmName,$peanutUrl.'/') === 0) {
+                $vmName = substr($vmName,strlen($peanutUrl));
+                $content = \Peanut\sys\ViewModelPageBuilder::Build($vmName);
                 print $content;
                 exit;
             }
-            else {
-                $vm = \Tops\wordpress\ViewModel::Initialize($request);
-            }
+            \Tops\wordpress\ViewModel::Initialize($request);
             break;
     }
 }
