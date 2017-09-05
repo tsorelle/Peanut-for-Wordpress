@@ -11,6 +11,8 @@ namespace Tops\wordpress;
 use PHPMailer;
 use Tops\mail\TContentType;
 use Tops\mail\TEMailMessage;
+use Tops\mail\TMailConfiguration;
+use Tops\mail\TMailSettings;
 use Tops\sys\TConfiguration;
 use Tops\sys\TPath;
 use Tops\sys\TWebSite;
@@ -35,25 +37,25 @@ class TWordPressMailer
      * @var PHPMailer
      */
     private $mailer;
-    private $initialized = false;
     private $basedir;
 
     public function __construct()
     {
-        $senderType = TConfiguration::getValue('sendmail','mail',1);
+        $settings = TMailConfiguration::GetSettings();
+        // $senderType = TConfiguration::getValue('sendmail','mail',1);
         $baseDir = TConfiguration::getValue('basedir','mail');
         if ($baseDir !== false) {
             $this->baseDir = TWebSite::ExpandUrl($baseDir);
         }
 
         $this->mailer = new PHPMailer();
-        if (empty($senderType)) {
+        if (empty($settings->sendmail)) {
             $this->enabled = false;
         }
         else {
-            switch ($senderType) {
+            switch ($settings->sendmail) {
                 case 'smtp' :
-                    $this->configureSmtp();
+                    $this->configureSmtp($settings);
                     break;
                 // might support additional mailer types later
                 default:
@@ -61,32 +63,32 @@ class TWordPressMailer
                     break;
             }
         }
-
     }
 
-    public function configureSmtp()
+    public function configureSmtp(TMailSettings $settings)
     {
         $this->mailer->isSMTP();
         //Enable SMTP debugging
         // 0 = off (for production use)
         // 1 = client messages
         // 2 = client and server messages
-        $this->mailer->SMTPDebug = TConfiguration::getValue('debug', 'mail', 0);
+        $this->mailer->SMTPDebug = $settings->debug;
 
         //Set the hostname of the mail server
-        $this->mailer->Host = TConfiguration::getValue('host', 'mail', 'localhost');
+        $this->mailer->Host = $settings->host;
         //Set the SMTP port number - likely to be 25, 465 or 587
-        $this->mailer->Port = TConfiguration::getValue('port', 'mail', 25);
+        $this->mailer->Port = $settings->port;
         //Whether to use SMTP authentication
-        $auth = TConfiguration::getBoolean('auth', 'mail');
+        $auth = $settings->auth;
         if ($auth) {
             $this->mailer->SMTPAuth = true;
             //Username to use for SMTP authentication
-            $this->mailer->Username = TConfiguration::getValue('username', 'mail', '');
+            $this->mailer->Username =  $settings->username;
             //Password to use for SMTP authentication
-            $this->mailer->Password = TConfiguration::getValue('password', 'mail', '');
+            $this->mailer->Password = $settings->password;
         }
     }
+
 
     /**
      * @param TEMailMessage $message
