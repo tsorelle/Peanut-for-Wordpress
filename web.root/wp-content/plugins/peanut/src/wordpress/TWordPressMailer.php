@@ -130,6 +130,11 @@ class TWordPressMailer
             $this->mailer->Body = $message->getMessageBody();
         }
 
+        $returnAddress = $message->getReturnAddress();
+        if (!empty($returnAddress)) {
+            $this->mailer->addCustomHeader('Return-Path',$returnAddress);
+        }
+
         $attachments = $message->getAttachments();
 
         foreach ($attachments as $attachment) {
