@@ -37,6 +37,8 @@ class WordpressConnectionManager extends TConnectionManager
         $foundCount = 0;
         $configfile = TPath::getFileRoot().'wp-config.php';
         $lines = file($configfile);
+        $dbname = '';
+        $server = 'localhost';
         foreach($lines as $line) {
             $def = $this->parseConfigDefinition($line);
             if ($def === false) {
@@ -44,7 +46,7 @@ class WordpressConnectionManager extends TConnectionManager
             }
             switch ($def->key) {
                 case 'DB_NAME' :
-                    $config->database = $def->value;
+                    $dbname = $def->value;
                     $foundCount++;
                     break;
                 case 'DB_USER' :
@@ -57,7 +59,7 @@ class WordpressConnectionManager extends TConnectionManager
                     break;
                 case 'DB_HOST' :
                     if ($def->value != 'localhost') {
-                        $config->server = $def->value;
+                        $server = $def->value;
                     }
                     $foundCount++;
                     break;
@@ -69,6 +71,7 @@ class WordpressConnectionManager extends TConnectionManager
         if ($foundCount < 3) {
             return false;
         }
+        $config->dsn = "mysql:host=$server;dbname=$dbname";
         $result = new \stdClass();
         $result->default = 'wordpress';
         $result->connections = array('wordpress' => $config);
