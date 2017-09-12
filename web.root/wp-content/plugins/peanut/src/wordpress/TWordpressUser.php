@@ -12,6 +12,7 @@ use Tops\cache\ITopsCache;
 use Tops\cache\TSessionCache;
 use Tops\sys\IUser;
 use Tops\sys\TAbstractUser;
+use Tops\sys\TUser;
 use WP_User;
 
 /**
@@ -21,6 +22,7 @@ use WP_User;
  */
 class TWordpressUser extends TAbstractUser
 {
+    const WordpressAdminRole = 'Administrator';
     /**
      * @var $user WP_User
      */
@@ -102,7 +104,7 @@ class TWordpressUser extends TAbstractUser
      */
     public function isAdmin()
     {
-        return $this->isMemberOf('administrator');
+        return $this->isMemberOf(self::WordpressAdminRole);
     }
 
     /**
@@ -115,6 +117,11 @@ class TWordpressUser extends TAbstractUser
             return array();
         }
         else {
+            $roles = $user->roles;
+            $adminIndex = array_search(self::WordpressAdminRole,$roles);
+            if ($adminIndex !== false) {
+                $roles[$adminIndex] = TUser::AdminRole;
+            }
             return $user->roles;
         }
     }
@@ -125,6 +132,9 @@ class TWordpressUser extends TAbstractUser
      */
     public function isMemberOf($roleName)
     {
+        if ($roleName == self::WordpressAdminRole) {
+            $roleName = TUser::AdminRole;
+        }
         $roles = $this->getRoles();
         return in_array($roleName,$roles);
     }
@@ -139,7 +149,7 @@ class TWordpressUser extends TAbstractUser
         if ($user === false) {
             return false;
         }
-        return (in_array('administrator', $user->roles) || $this->user->has_cap($value));
+        return ($this->isAdmin() || $this->user->has_cap($value));
     }
 
     /**

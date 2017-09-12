@@ -14,6 +14,7 @@ Text Domain: peanut
 */
 
 use Peanut\sys\PeanutSettings;
+use PeanutTest\WebTester;
 use Tops\sys\TStrings;
 use Peanut\sys\ViewModelManager;
 
@@ -28,6 +29,13 @@ function peanut_initialize() {
     $request = \Tops\sys\TRequestBuilder::GetRequest();
     $pathInfo = $request->getPathInfo();
     // routing
+    if(strpos($pathInfo,'/peanut/test/') === 0) {
+        $parts = explode('/',$pathInfo);
+        $testname = array_pop($parts);
+        WebTester::run($testname);
+        exit;
+    }
+
     switch ($pathInfo) {
         case '/peanut/settings' :
             header('Content-type: application/json');
