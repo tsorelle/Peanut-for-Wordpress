@@ -39,12 +39,12 @@ class WordpressPermissionsManager implements IPermissionsManager
     public function removeRole($roleName)
     {
         if( get_role($roleName) ){
+            $this->getRepository()->removeRolePermissions($roleName);
             remove_role($roleName);
             return true;
         }
         return false;
     }
-
 
     /**
      * @return string[]
