@@ -8,15 +8,17 @@
 
 namespace Tops\wordpress;
 
-require_once(\Tops\sys\TPath::getFileRoot().'/wp-admin/includes/user.php');
+// require_once(\Tops\sys\TPath::getFileRoot().'/wp-admin/includes/user.php');
 
 use Tops\db\model\repository\PermissionsRepository;
 use Tops\sys\IPermissionsManager;
 use Tops\sys\TPermission;
 use Tops\sys\TUser;
+use WP_Roles;
 
 class WordpressPermissionsManager implements IPermissionsManager
 {
+
 
     /***********  Wordpress functions **************************/
     /**
@@ -28,7 +30,8 @@ class WordpressPermissionsManager implements IPermissionsManager
         if (empty($roleDescription)) {
             $roleDescription = $roleName;
         }
-        $result = add_role($roleName, __($roleDescription), array('read' => true));
+        $wpRoles = wp_roles();
+        $result = $wpRoles->add_role($roleName, __($roleDescription), array('read' => true));
         return $result !== null;
     }
 
@@ -38,9 +41,15 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function removeRole($roleName)
     {
-        if( get_role($roleName) ){
-            $this->getRepository()->removeRolePermissions($roleName);
-            remove_role($roleName);
+        $wpRoles = wp_roles();
+        if( $wpRoles->get_role($roleName) ){
+            try {
+                $this->getRepository()->removeRolePermissions($roleName);
+            }
+            catch (\Exception $ex) {
+                // ignore sql exceptions that may occur if tables don't exist.
+            }
+            $wpRoles->remove_role($roleName);
             return true;
         }
         return false;
@@ -51,7 +60,8 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function getRoles()
     {
-        $roleObjects = \get_editable_roles();
+        $roleObjects =  wp_roles()->roles;
+            // \get_editable_roles();
         unset($roleObjects['administrator']);
         return array_keys($roleObjects);
     }
