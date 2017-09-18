@@ -20,6 +20,7 @@ class PermissionsTest extends TestScript
         $manager = new WordpressPermissionsManager();
 
         $roles = $manager->getRoles();
+
         $count = sizeof($roles);
         $this->assert($count > 0, 'No roles returned');
 
@@ -28,6 +29,11 @@ class PermissionsTest extends TestScript
         $actual = sizeof($roles);
         $expected = $count + 1;
         $this->assertEquals($expected,$actual,'Test not added');
+
+
+        $roles = $manager->getRoles();
+        var_dump($roles);
+        print "\n\n";
 
         $manager->removeRole('qnut_test');
         $roles = $manager->getRoles();

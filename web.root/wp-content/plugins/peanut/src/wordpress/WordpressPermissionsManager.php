@@ -23,6 +23,7 @@ class WordpressPermissionsManager implements IPermissionsManager
     /***********  Wordpress functions **************************/
     /**
      * @param string $roleName
+     * @param null $roleDescription
      * @return bool
      */
     public function addRole($roleName,$roleDescription=null)
@@ -56,14 +57,22 @@ class WordpressPermissionsManager implements IPermissionsManager
     }
 
     /**
-     * @return string[]
+     * @return \stdClass[]
      */
     public function getRoles()
     {
+        $result = array();
         $roleObjects =  wp_roles()->roles;
             // \get_editable_roles();
         unset($roleObjects['administrator']);
-        return array_keys($roleObjects);
+
+        foreach ($roleObjects as $roleName => $roleObject) {
+            $item = new \stdClass();
+            $item->Name = $roleObject['name'];
+            $item->Value = $roleName;
+            $result[] = $item;
+        }
+        return $result;
     }
 
 
@@ -103,13 +112,14 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function assignPermission($roleName, $permissionName)
     {
-        $this->getRepository()->assignPermission($roleName,$permissionName);
+        return $this->getRepository()->assignPermission($roleName,$permissionName);
     }
 
     public function addPermission($name, $description)
     {
         $username = TUser::getCurrent()->getUserName();
         $this->getRepository()->addPermission($name,$description,$username);
+        return true;
     }
 
 
@@ -120,6 +130,6 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function revokePermission($roleName, $permissionName)
     {
-        $this->getRepository()->revokePermission($roleName,$permissionName);
+        return $this->getRepository()->revokePermission($roleName,$permissionName);
     }
 }
