@@ -14,10 +14,13 @@ use Tops\sys\TPath;
 
 class WordpressPeanutInstaller extends PeanutInstaller
 {
-    // todo: to be implemented
-
-    public function doCustomSetup()
+    public function doCustomSetup($testing = false)
     {
         // TODO: Implement doCustomSetup() method.
+    }
+
+    public function doTeardown($testing = false)
+    {
+        // TODO: Implement doTeardown() method.
     }
 }

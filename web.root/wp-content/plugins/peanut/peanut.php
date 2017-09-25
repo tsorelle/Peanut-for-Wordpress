@@ -104,4 +104,21 @@ function peanut_content($input)
     return $input;
 }
 
+function peanut_install() {
+    $installationIni = @parse_ini_file(__DIR__.'/installation/installation.ini');
+    if ($installationIni !== false && !empty($installationIni['enabled'])) {
+        require_once (__DIR__.'/installation/bootstrap/PeanutPluginInstaller.php');
+        \Tops\wordpress\PeanutPluginInstaller::install();
+    }
+}
+register_activation_hook( __FILE__, 'peanut_install' );
+
+function peanut_deactivation() {
+    $installationIni = @parse_ini_file(__DIR__.'/installation/installation.ini');
+    if ($installationIni !== false && (!empty($installationIni['enabled'])) && class_exists('\Peanut\sys\DefaultPeanutInstaller')) {
+        $installer = new \Peanut\sys\DefaultPeanutInstaller();
+        $installer->uninstallAll();
+    }
+}
+register_deactivation_hook( __FILE__, 'peanut_deactivation' );
 

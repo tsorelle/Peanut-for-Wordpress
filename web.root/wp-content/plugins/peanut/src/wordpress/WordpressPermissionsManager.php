@@ -28,12 +28,8 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function addRole($roleName,$roleDescription=null)
     {
-        if (empty($roleDescription)) {
-            $roleDescription = $roleName;
-        }
-        $wpRoles = wp_roles();
-        $result = $wpRoles->add_role($roleName, __($roleDescription), array('read' => true));
-        return $result !== null;
+        // wordpress does not use role descriptions
+        return WordpressRoles::addRole($roleName);
     }
 
     /**
@@ -42,18 +38,7 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function removeRole($roleName)
     {
-        $wpRoles = wp_roles();
-        if( $wpRoles->get_role($roleName) ){
-            try {
-                $this->getRepository()->removeRolePermissions($roleName);
-            }
-            catch (\Exception $ex) {
-                // ignore sql exceptions that may occur if tables don't exist.
-            }
-            $wpRoles->remove_role($roleName);
-            return true;
-        }
-        return false;
+        return WordpressRoles::removeRole($roleName,$this->getRepository());
     }
 
     /**
@@ -61,18 +46,7 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function getRoles()
     {
-        $result = array();
-        $roleObjects =  wp_roles()->roles;
-            // \get_editable_roles();
-        unset($roleObjects['administrator']);
-
-        foreach ($roleObjects as $roleName => $roleObject) {
-            $item = new \stdClass();
-            $item->Name = $roleObject['name'];
-            $item->Value = $roleName;
-            $result[] = $item;
-        }
-        return $result;
+        return WordpressRoles::getRoles();
     }
 
 
@@ -131,5 +105,10 @@ class WordpressPermissionsManager implements IPermissionsManager
     public function revokePermission($roleName, $permissionName)
     {
         return $this->getRepository()->revokePermission($roleName,$permissionName);
+    }
+
+    public function removePermission($name)
+    {
+        return $this->getRepository()->removePermission($name);
     }
 }
