@@ -14,6 +14,8 @@ use Tops\wordpress\WordpressPermissionsManager;
 class PermissionsTest extends TestScript
 {
 
+    const TestPermissionName = 'Can do testing';
+    const TestRoleName = 'Test role';
     public function execute()
     {
 
@@ -24,7 +26,10 @@ class PermissionsTest extends TestScript
         $count = sizeof($roles);
         $this->assert($count > 0, 'No roles returned');
 
-        $manager->addRole('qnut_test','Peanut tester');
+        $testRoleName = self::TestRoleName;
+        $testPermissionName = self::TestPermissionName;
+
+        $manager->addRole($testRoleName);
         $roles = $manager->getRoles();
         $actual = sizeof($roles);
         $expected = $count + 1;
@@ -32,14 +37,15 @@ class PermissionsTest extends TestScript
 
 
         $roles = $manager->getRoles();
-        var_dump($roles);
-        print "\n\n";
+        //    var_dump($roles);
+        //   print "\n\n";
 
-        $manager->removeRole('qnut_test');
-        $roles = $manager->getRoles();
-        $actual = sizeof($roles);
-        $expected = $count;
-        $this->assertEquals($expected,$actual,'Test not removed');
+
+        $manager->assignPermission($testRoleName,$testPermissionName);
+
+        // check results and run Permisisons test 2;
+
+
 
     }
 }

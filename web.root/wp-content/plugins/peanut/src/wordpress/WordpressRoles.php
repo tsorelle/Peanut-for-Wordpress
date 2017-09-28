@@ -42,7 +42,7 @@ class WordpressRoles
      */
     public static function removeRole($roleName, $repository)
     {
-        $roleName = self::roleNameToMachineName($roleName);
+        // $roleName = self::roleNameToMachineName($roleName);
         $wpRoles = wp_roles();
         if( $wpRoles->get_role($roleName) ){
             try {

@@ -13,8 +13,10 @@ namespace Tops\wordpress;
 use Tops\db\model\repository\PermissionsRepository;
 use Tops\sys\IPermissionsManager;
 use Tops\sys\TPermission;
+use Tops\sys\TStrings;
 use Tops\sys\TUser;
 use WP_Roles;
+use function wp_roles;
 
 class WordpressPermissionsManager implements IPermissionsManager
 {
@@ -28,8 +30,12 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function addRole($roleName,$roleDescription=null)
     {
+        $roleKey = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
+        $roleDescription = TStrings::convertNameFormat($roleName,TStrings::wordCapsFormat);
         // wordpress does not use role descriptions
-        return WordpressRoles::addRole($roleName);
+
+        $result = wp_roles()->add_role($roleKey, __($roleDescription), array('read' => true));
+        return $result !== null;
     }
 
     /**
@@ -38,7 +44,14 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function removeRole($roleName)
     {
-        return WordpressRoles::removeRole($roleName,$this->getRepository());
+        $roleName = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
+        $wpRoles = wp_roles();
+        $role = $this->getWpRole($roleName);
+        if( !empty($role)){
+            $wpRoles->remove_role($roleName);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -46,37 +59,36 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function getRoles()
     {
-        return WordpressRoles::getRoles();
-    }
+        $result = array();
+        $roleObjects =  wp_roles()->roles;
+        // \get_editable_roles();
+        unset($roleObjects['administrator']);
 
-
-    /******** Tops functions **********************/
-
-    /**
-     * @var PermissionsRepository
-     */
-    private $permissionsRepository;
-
-    private function getRepository()
-    {
-        if (!isset($this->permissionsRepository)) {
-            $this->permissionsRepository = new PermissionsRepository();
+        foreach ($roleObjects as $roleName => $roleObject) {
+            $item = new \stdClass();
+            $item->Name = $roleObject['name'];
+            $item->Value = $roleName;
+            $result[] = $item;
         }
-        return $this->permissionsRepository;
+        return $result;
     }
-
 
     /**
      * @return TPermission[]
      */
     public function getPermissions()
     {
-        return $this->getRepository()->getAll();
+        return []; // not implemented
     }
 
     public function getPermission($permissionName)
     {
-        return $this->getRepository()->getPermission($permissionName);
+        return null; // not implemented
+    }
+
+    private function getWpRole($roleName) {
+        $roleKey = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
+        return wp_roles()->get_role($roleKey);
     }
 
     /**
@@ -86,14 +98,15 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function assignPermission($roleName, $permissionName)
     {
-        return $this->getRepository()->assignPermission($roleName,$permissionName);
+        $role = $this->getWpRole($roleName);
+        $permissionKey = TStrings::convertNameFormat($permissionName,TStrings::keyFormat);
+        $role->add_cap($permissionKey);
+        return true;
     }
 
     public function addPermission($name, $description)
     {
-        $username = TUser::getCurrent()->getUserName();
-        $this->getRepository()->addPermission($name,$description,$username);
-        return true;
+        // not implemented permissions added by assignment
     }
 
 
@@ -104,11 +117,20 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function revokePermission($roleName, $permissionName)
     {
-        return $this->getRepository()->revokePermission($roleName,$permissionName);
+        $role = $this->getWpRole($roleName);
+        $permissionKey = TStrings::convertNameFormat($permissionName,TStrings::keyFormat);
+        $role->remove_cap($permissionKey);
+        return true;
     }
 
     public function removePermission($name)
     {
-        return $this->getRepository()->removePermission($name);
+        // not implemented. permissions removed on revocation
+    }
+
+    public function verifyPermission($permissionName)
+    {
+        $permissionKey = TStrings::convertNameFormat($permissionName,TStrings::keyFormat);
+        return current_user_can($permissionKey);
     }
 }
