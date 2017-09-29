@@ -9,21 +9,28 @@
 namespace PeanutTest\scripts;
 
 
+use Tops\sys\TUser;
 use Tops\wordpress\WordpressPermissionsManager;
 
-class PermissionscleanupTest extends TestScript
+class Permissions3Test extends TestScript
 {
 
     public function execute()
     {
         // run logged in as admin
+        $user = TUser::getCurrent();
+        $name = $user->getUserName();
+        $admin = $user->isAdmin() ? 'Administrator' : 'Non-administrator';
+
+        print "Succeed if user is administrator\n";
+        print "Running test as: $name ($admin) \n";
 
         $manager = new WordpressPermissionsManager();
         $roles = $manager->getRoles();
         $count = sizeof($roles);
         $this->assert($count > 0, 'No roles returned');
 
-        $manager->removeRole(PermissionsTest::TestRoleName);
+        $manager->removeRole(Permissions1Test::TestRoleName);
 
         $roles = $manager->getRoles();
         $actual = sizeof($roles);

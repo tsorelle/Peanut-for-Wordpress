@@ -9,15 +9,24 @@
 namespace PeanutTest\scripts;
 
 
+use Tops\sys\TUser;
 use Tops\wordpress\WordpressPermissionsManager;
 
-class PermissionsTest extends TestScript
+class Permissions1Test extends TestScript
 {
+    // log in as admin
 
     const TestPermissionName = 'Can do testing';
     const TestRoleName = 'Test role';
     public function execute()
     {
+        $user = TUser::getCurrent();
+        $name = $user->getUserName();
+        $admin = $user->isAdmin() ? 'Administrator' : 'Non-administrator';
+
+        print "Succeed if user is administrator\n";
+        print "Running test as: $name ($admin) \n";
+
 
         $manager = new WordpressPermissionsManager();
 
@@ -43,7 +52,8 @@ class PermissionsTest extends TestScript
 
         $manager->assignPermission($testRoleName,$testPermissionName);
 
-        // check results and run Permisisons test 2;
+        //*************************************************************************
+        // Next: check results, add tester user to 'Test Role' group then run permissions2
 
 
 

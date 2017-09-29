@@ -24,10 +24,13 @@ use WP_User;
 class TWordpressUser extends TAbstractUser
 {
     const WordpressAdminRole = 'administrator';
+    private $profileCache = array();
+
     /**
      * @var $user WP_User
      */
     private $user;
+
 
     public function getUser() {
         if (isset($this->user) && $this->user !== null) {
@@ -35,32 +38,31 @@ class TWordpressUser extends TAbstractUser
         }
         return false;
     }
+
     // overrides base method
     public function getProfileValue($key)
     {
-        $user = $this->getUser();
-        if ($user !== false && $user->has_prop($key)) {
-            return $user->get($key);
+        $result = parent::getProfileValue($key);
+        if ($result !== false) {
+            $user = $this->getUser();
+            if ($user !== false) {
+                if ($user->has_prop($key)) {
+                    return $user->get($key);
+                }
+            }
         }
-        return false;
-    }
+        return empty($result) ? '' : $result;
 
-    // overrides base method
-    public function setProfileValue($key,$value) {
-        $user = $this->getUser();
-        if ($user !== false && $user->has_prop($key)) {
-            // todo: implemtent profile update
-            throw new \Exception("Method 'TWordPressuser:setProfileValue' not implemanted");
-        }
     }
-
 
     public function setUser(WP_User $user) {
+        $this->profile = [];
         if (!empty($user) && $user->exists()) {
             $this->user = $user;
+            $this->userName = $user->user_login;
         }
         else {
-            $this->user = null;
+            unset($this->user);
         }
     }
 
@@ -98,6 +100,7 @@ class TWordpressUser extends TAbstractUser
     {
         $user = wp_get_current_user();
         $this->setUser($user);
+        $this->isCurrentUser = true;
     }
 
     /**
@@ -158,8 +161,15 @@ class TWordpressUser extends TAbstractUser
 
     protected function loadProfile()
     {
-        // not used in Wordpress implementaton.
-        throw new \Exception("Method 'TWordpressUser::loadProfile' not implemented");
+        $this->profile = [];
+        $user = $this->getUser();
+        if (!empty($user)) {
+            $this->profile[TUser::profileKeyFirstName] = $user->user_firstname;
+            $this->profile[TUser::profileKeyLastName] = $user->user_lastname;
+            $this->profile[TUser::profileKeyFullName] = $user->display_name;
+            $this->profile[TUser::profileKeyShortName] = $user->user_nicename;
+            $this->profile[TUser::profileKeyEmail] = $user->user_email;
+        }
     }
 
     /**
@@ -170,5 +180,19 @@ class TWordpressUser extends TAbstractUser
     {
         $user = get_user_by('email',$email);
         $this->setUser($user);
+    }
+
+    public function isCurrent()
+    {
+        if (isset($this->isCurrentUser)) {
+            return parent::isCurrent();
+        }
+        if (isset($this->user)) {
+            $current_user = wp_get_current_user();
+            if ($current_user instanceof WP_User) {
+                return $current_user->user_login == $this->user->user_login;
+            }
+        }
+        return false;
     }
 }
