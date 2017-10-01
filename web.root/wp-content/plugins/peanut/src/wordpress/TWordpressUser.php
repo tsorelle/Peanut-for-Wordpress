@@ -56,7 +56,7 @@ class TWordpressUser extends TAbstractUser
     }
 
     public function setUser(WP_User $user) {
-        $this->profile = [];
+        unset($this->profile);
         if (!empty($user) && $user->exists()) {
             $this->user = $user;
             $this->userName = $user->user_login;
