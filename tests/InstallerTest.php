@@ -14,7 +14,7 @@ class InstallerTest extends TestCase
     public function testGetInstallerInstance() {
         $actual = \Peanut\sys\PeanutInstaller::GetInstaller();
         $this->assertNotNull($actual);
-        $this->assertInstanceOf('Tops\wordpress\WordpressPeanutInstaller',$actual);
+        $this->assertInstanceOf('\Peanut\sys\PeanutInstaller',$actual);
     }
 }
 

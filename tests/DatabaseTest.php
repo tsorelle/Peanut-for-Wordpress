@@ -27,7 +27,7 @@ class DatabaseTest extends TestCase
         $config = $actual->connections['wordpress'];
         $this->assertNotEmpty($config->user);
         $this->assertNotEmpty($config->pwd);
-        $this->assertNotEmpty($config->database);
+        $this->assertNotEmpty($config->dsn);
     }
 
 }

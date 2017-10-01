@@ -108,7 +108,8 @@ class TWordpressUser extends TAbstractUser
      */
     public function isAdmin()
     {
-        return $this->isMemberOf(self::WordpressAdminRole);
+        $roles = $this->getRoles();
+        return (in_array(self::WordpressAdminRole,$roles));
     }
 
     /**
@@ -133,7 +134,10 @@ class TWordpressUser extends TAbstractUser
     {
         $roleName = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
         $roles = $this->getRoles();
-        return in_array($roleName,$roles);
+        if (in_array($roleName,$roles)) {
+            return true;
+        };
+        return (in_array(self::WordpressAdminRole,$roles));
     }
 
      /**
