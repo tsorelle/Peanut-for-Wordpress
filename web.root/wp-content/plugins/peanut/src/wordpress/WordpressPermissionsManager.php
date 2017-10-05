@@ -10,12 +10,9 @@ namespace Tops\wordpress;
 
 // require_once(\Tops\sys\TPath::getFileRoot().'/wp-admin/includes/user.php');
 
-use Tops\db\model\repository\PermissionsRepository;
 use Tops\sys\IPermissionsManager;
 use Tops\sys\TPermission;
 use Tops\sys\TStrings;
-use Tops\sys\TUser;
-use WP_Roles;
 use function wp_roles;
 
 class WordpressPermissionsManager implements IPermissionsManager
@@ -25,21 +22,6 @@ class WordpressPermissionsManager implements IPermissionsManager
     public static $roleKeyFormat = TStrings::keyFormat;
     public static $roleDescriptionFormat = TStrings::wordCapsFormat;
     public static $permissionKeyFormat = TStrings::keyFormat;
-
-    /**
-     * @var PermissionsRepository
-     */
-    private $permissionsRepository;
-
-    private function getRepository()
-    {
-        if (!isset($this->permissionsRepository)) {
-            $this->permissionsRepository = new PermissionsRepository();
-        }
-        return $this->permissionsRepository;
-    }
-
-
 
 
 
