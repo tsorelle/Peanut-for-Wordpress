@@ -23,10 +23,8 @@ class TWordpressUser extends TAbstractUser
 {
     const WordpressAdminRole = 'administrator';
     const WordpressGuestRole = 'guest';
-    
-    private $profileCache = array();
 
-    /**
+     /**
      * @var $user WP_User
      */
     private $user;
@@ -43,11 +41,13 @@ class TWordpressUser extends TAbstractUser
     public function getProfileValue($key)
     {
         $result = parent::getProfileValue($key);
+        $key = $this->formatProfileKey($key);
         if ($result !== false) {
             $user = $this->getUser();
             if ($user !== false) {
-                if ($user->has_prop($key)) {
-                    return $user->get($key);
+                $wpKey = TStrings::convertNameFormat($key,TStrings::keyFormat);
+                if ($user->has_prop($wpKey)) {
+                    return $user->get($wpKey);
                 }
             }
         }
