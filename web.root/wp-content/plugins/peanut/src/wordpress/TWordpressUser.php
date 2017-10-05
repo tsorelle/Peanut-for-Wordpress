@@ -8,10 +8,8 @@
 
 namespace Tops\wordpress;
 
-use Tops\cache\ITopsCache;
-use Tops\cache\TSessionCache;
-use Tops\sys\IUser;
 use Tops\sys\TAbstractUser;
+use Tops\sys\TImage;
 use Tops\sys\TStrings;
 use Tops\sys\TUser;
 use WP_User;
@@ -24,6 +22,8 @@ use WP_User;
 class TWordpressUser extends TAbstractUser
 {
     const WordpressAdminRole = 'administrator';
+    const WordpressGuestRole = 'guest';
+    
     private $profileCache = array();
 
     /**
@@ -60,15 +60,11 @@ class TWordpressUser extends TAbstractUser
         if (!empty($user) && $user->exists()) {
             $this->user = $user;
             $this->userName = $user->user_login;
+            $this->id = $user->ID;
         }
         else {
             unset($this->user);
         }
-    }
-
-    protected function test()
-    {
-        return 'wordpress';
     }
 
     /**
@@ -132,6 +128,7 @@ class TWordpressUser extends TAbstractUser
      */
     public function isMemberOf($roleName)
     {
+        if ($roleName )
         $roleName = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
         $roles = $this->getRoles();
         if (in_array($roleName,$roles)) {
@@ -148,6 +145,10 @@ class TWordpressUser extends TAbstractUser
     {
         $user = $this->getUser();
         if ($user === false) {
+            $guestRole = wp_roles()->get_role(self::WordpressGuestRole);
+            if ($guestRole !== null) {
+                return $guestRole->has_cap($value);
+            }
             return false;
         }
         $value = TStrings::convertNameFormat($value,TStrings::keyFormat);
@@ -165,11 +166,8 @@ class TWordpressUser extends TAbstractUser
 
     protected function loadProfile()
     {
-        $this->profile = [];
         $user = $this->getUser();
         if (!empty($user)) {
-            $this->profile[TUser::profileKeyFirstName] = $user->user_firstname;
-            $this->profile[TUser::profileKeyLastName] = $user->user_lastname;
             $this->profile[TUser::profileKeyFullName] = $user->display_name;
             $this->profile[TUser::profileKeyShortName] = $user->user_nicename;
             $this->profile[TUser::profileKeyEmail] = $user->user_email;
@@ -198,5 +196,34 @@ class TWordpressUser extends TAbstractUser
             }
         }
         return false;
+    }
+
+    function getUserPicture($size = 0, array $classes = [], array $attributes = [])
+    {
+        if (!$this->isAuthenticated()) {
+            return '';
+        }
+        switch ($size) {
+            case 0 :
+                $size = 512;
+                break;
+            case TImage::sizeResponsive :
+                $classes[] = 'image-responsive';
+                $size = 512;
+                break;
+            default :
+                if ($size > 512) {
+                    $size = 512; // maximum size
+                }
+        }
+        $args = [];
+
+        if (!empty($classes)) {
+            $args['class'] = join(' ',$classes);
+        }
+
+        $i = get_avatar($this->getId(),$size,$this->getUserShortName(),'',$args);
+        return $i;
+
     }
 }

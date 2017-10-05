@@ -21,8 +21,28 @@ use function wp_roles;
 class WordpressPermissionsManager implements IPermissionsManager
 {
 
+    const guestRoleName = 'anonymous';
+    public static $roleKeyFormat = TStrings::keyFormat;
+    public static $roleDescriptionFormat = TStrings::wordCapsFormat;
+    public static $permissionKeyFormat = TStrings::keyFormat;
 
-    /***********  Wordpress functions **************************/
+    /**
+     * @var PermissionsRepository
+     */
+    private $permissionsRepository;
+
+    private function getRepository()
+    {
+        if (!isset($this->permissionsRepository)) {
+            $this->permissionsRepository = new PermissionsRepository();
+        }
+        return $this->permissionsRepository;
+    }
+
+
+
+
+
     /**
      * @param string $roleName
      * @param null $roleDescription
@@ -30,10 +50,8 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function addRole($roleName,$roleDescription=null)
     {
-        $roleKey = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
-        $roleDescription = TStrings::convertNameFormat($roleName,TStrings::wordCapsFormat);
-        // wordpress does not use role descriptions
-
+        $roleKey = TStrings::convertNameFormat($roleName,self::$roleKeyFormat);
+        $roleDescription = TStrings::convertNameFormat($roleName,self::$roleDescriptionFormat);
         $result = wp_roles()->add_role($roleKey, __($roleDescription), array('read' => true));
         return $result !== null;
     }
@@ -44,7 +62,7 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function removeRole($roleName)
     {
-        $roleName = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
+        $roleName = TStrings::convertNameFormat($roleName,self::$roleKeyFormat);
         $wpRoles = wp_roles();
         $role = $this->getWpRole($roleName);
         if( !empty($role)){
@@ -87,7 +105,7 @@ class WordpressPermissionsManager implements IPermissionsManager
     }
 
     private function getWpRole($roleName) {
-        $roleKey = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
+        $roleKey = TStrings::convertNameFormat($roleName,self::$roleKeyFormat);
         return wp_roles()->get_role($roleKey);
     }
 
@@ -99,7 +117,7 @@ class WordpressPermissionsManager implements IPermissionsManager
     public function assignPermission($roleName, $permissionName)
     {
         $role = $this->getWpRole($roleName);
-        $permissionKey = TStrings::convertNameFormat($permissionName,TStrings::keyFormat);
+        $permissionKey = TStrings::convertNameFormat($permissionName,self::$permissionKeyFormat);
         $role->add_cap($permissionKey);
         return true;
     }
@@ -118,19 +136,22 @@ class WordpressPermissionsManager implements IPermissionsManager
     public function revokePermission($roleName, $permissionName)
     {
         $role = $this->getWpRole($roleName);
-        $permissionKey = TStrings::convertNameFormat($permissionName,TStrings::keyFormat);
+        $permissionKey = TStrings::convertNameFormat($permissionName,self::$permissionKeyFormat);
         $role->remove_cap($permissionKey);
         return true;
     }
 
     public function removePermission($name)
     {
-        // not implemented. permissions removed on revocation
+        $roles = $this->getRoles();
+        foreach ($roles as $role) {
+            $this->revokePermission($role->Value,$name);
+        }
     }
 
     public function verifyPermission($permissionName)
     {
-        $permissionKey = TStrings::convertNameFormat($permissionName,TStrings::keyFormat);
+        $permissionKey = TStrings::convertNameFormat($permissionName,self::$permissionKeyFormat);
         return current_user_can($permissionKey);
     }
 }
