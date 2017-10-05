@@ -143,16 +143,20 @@ class TWordpressUser extends TAbstractUser
      */
     public function isAuthorized($value = '')
     {
-        $user = $this->getUser();
-        if ($user === false) {
-            $guestRole = wp_roles()->get_role(self::WordpressGuestRole);
-            if ($guestRole !== null) {
-                return $guestRole->has_cap($value);
+        $authorized = parent::isAuthorized($value);
+        if (!$authorized) {
+            $user = $this->getUser();
+            if ($user === false) {
+                $guestRole = wp_roles()->get_role(self::WordpressGuestRole);
+                if ($guestRole !== null) {
+                    return $guestRole->has_cap($value);
+                }
+                return false;
             }
-            return false;
+            $value = TStrings::convertNameFormat($value, TStrings::keyFormat);
+            $authorized = $this->user->has_cap($value);
         }
-        $value = TStrings::convertNameFormat($value,TStrings::keyFormat);
-        return ($this->isAdmin() || $this->user->has_cap($value));
+        return $authorized;
     }
 
     /**
