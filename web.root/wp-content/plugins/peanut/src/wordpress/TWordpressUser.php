@@ -180,7 +180,7 @@ class TWordpressUser extends TAbstractUser
 
     /**
      * @param $email
-     * @return mixed
+     * @return void
      */
     public function loadByEmail($email)
     {
