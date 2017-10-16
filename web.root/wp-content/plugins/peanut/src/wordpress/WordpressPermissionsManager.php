@@ -86,7 +86,7 @@ class WordpressPermissionsManager extends TDBPermissionsManager
      */
     public function getRoles()
     {
-        $result = $this->getActualRoles(TPermissionsManager::keyFormat);
+        $result = $this->getActualRoles(false);
         $virtualRoles = $this->getVirtualRoles();
         $result[] = $virtualRoles[self::authenticatedRole];
         $result[] = $virtualRoles[self::guestRole];
@@ -96,16 +96,16 @@ class WordpressPermissionsManager extends TDBPermissionsManager
 
     // private
 
-    public function getActualRoles($format = self::handleFormat) {
+    public function getActualRoles($useWpFormat = true) {
         $result = array();
         $roleObjects =  wp_roles()->roles;
         unset($roleObjects['administrator']);
         foreach ($roleObjects as $roleName => $roleObject) {
-            $roleObject = $this->createRoleObject($roleName,$roleObject['name']);
-            if (!empty($format)) {
-                $roleObject->Key = TStrings::convertNameFormat($roleName,$format);
-                $result[] = $roleObject;
+            $item = $this->createRoleObject($roleName,$roleObject['name']);
+            if ($useWpFormat) {
+                $item->Key = TStrings::ConvertNameFormat($item->Key,self::handleFormat);
             }
+            $result[] = $item;
         }
         return $result;
     }
