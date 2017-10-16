@@ -16,13 +16,18 @@ class RollbackpeanutTest extends TestScript
 
     public function execute()
     {
-        $cap = 'administer_mailboxes';
+        $roleName = 'guest';
+        $wpRoles = wp_roles();
+            $wpRoles->remove_role($roleName);
+
+
+/*        $cap = 'administer_mailboxes';
 
 
         $wpRoles = wp_roles();
         $roleName= 'peanut_administrator';
         $ok = current_user_can($cap);
-        $this->assert($ok,'Cannot do it');
+        $this->assert($ok,'Cannot do it');*/
 
         /*        $roleDescription = 'Peanut Administrator';
                 $wpRoles = wp_roles();

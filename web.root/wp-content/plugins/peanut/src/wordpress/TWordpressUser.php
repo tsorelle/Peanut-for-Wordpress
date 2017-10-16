@@ -10,6 +10,7 @@ namespace Tops\wordpress;
 
 use Tops\sys\TAbstractUser;
 use Tops\sys\TImage;
+use Tops\sys\TPermissionsManager;
 use Tops\sys\TStrings;
 use Tops\sys\TUser;
 use WP_User;
@@ -37,6 +38,8 @@ class TWordpressUser extends TAbstractUser
         return false;
     }
 
+
+
     // overrides base method
     public function getProfileValue($key)
     {
@@ -45,7 +48,8 @@ class TWordpressUser extends TAbstractUser
         if ($result !== false) {
             $user = $this->getUser();
             if ($user !== false) {
-                $wpKey = TStrings::convertNameFormat($key,TStrings::keyFormat);
+                $wpKey = $this->formatPermissionHandle($key);
+                    // TStrings::ConvertNameFormat($key,TStrings::keyFormat);
                 if ($user->has_prop($wpKey)) {
                     return $user->get($wpKey);
                 }
@@ -108,18 +112,24 @@ class TWordpressUser extends TAbstractUser
         return (in_array(self::WordpressAdminRole,$roles));
     }
 
+    private $roleKeys;
     /**
      * @return string[]
      */
     public function getRoles()
     {
-        $user = $this->getUser();
-        if ($user === false) {
-            return array();
+        if (!isset($this->roleKeys)) {
+            $manager = TPermissionsManager::getPermissionManager();
+            $user = $this->getUser();
+            if ($user === false) {
+                $this->roleKeys = array($manager->getGuestRole());
+            }
+            else {
+                $this->roleKeys = TPermissionsManager::toKeyArray($user->roles);
+                $this->roleKeys[] = $manager->getAuthenticatedRole();
+            }
         }
-        else {
-            return $user->roles;
-        }
+        return $this->roleKeys;
     }
 
     /**
@@ -128,35 +138,58 @@ class TWordpressUser extends TAbstractUser
      */
     public function isMemberOf($roleName)
     {
-        if ($roleName )
-        $roleName = TStrings::convertNameFormat($roleName,TStrings::keyFormat);
-        $roles = $this->getRoles();
-        if (in_array($roleName,$roles)) {
-            return true;
-        };
-        return (in_array(self::WordpressAdminRole,$roles));
+        $result = parent::isMemberOf($roleName);
+        if (!$result) {
+            $roleName = $this->formatKey($roleName);
+            $roles = $this->getRoles();
+            if (in_array($roleName,$roles)) {
+                return true;
+            };
+            return (in_array(self::WordpressAdminRole,$roles));
+        }
+
+        return $result;
     }
 
      /**
      * @param string $value
      * @return bool
      */
-    public function isAuthorized($value = '')
+    public function isAuthorized($permissionName = '')
     {
-        $authorized = parent::isAuthorized($value);
+        $authorized = parent::isAuthorized($permissionName);
         if (!$authorized) {
-            $user = $this->getUser();
-            if ($user === false) {
-                $guestRole = wp_roles()->get_role(self::WordpressGuestRole);
-                if ($guestRole !== null) {
-                    return $guestRole->has_cap($value);
-                }
-                return false;
-            }
-            $value = TStrings::convertNameFormat($value, TStrings::keyFormat);
-            $authorized = $this->user->has_cap($value);
+             $authorized = $this->checkDbPermission($permissionName);
+             if (!$authorized) {
+                 $authorized = $this->checkWpPermission($permissionName);
+             }
         }
         return $authorized;
+    }
+
+    private function checkWpPermission($permissionName) {
+        $user = $this->getUser();
+        if (empty($user)) {
+            return false;
+        }
+        $permissionName =  $this->formatPermissionHandle($permissionName);
+        return $this->user->has_cap($permissionName);
+    }
+
+    private function checkDbPermission($permissionName) {
+        $permissionName =  $this->formatKey($permissionName);
+        $manager = TPermissionsManager::getPermissionManager();
+        $permission = $manager->getPermission($permissionName);
+        if (empty($permission)) {
+            return false;
+        }
+        $roles = $this->getRoles();
+        foreach ($roles as $role) {
+            if ($permission->check($role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -226,7 +259,7 @@ class TWordpressUser extends TAbstractUser
             $args['class'] = join(' ',$classes);
         }
 
-        $i = get_avatar($this->getId(),$size,$this->getUserShortName(),'',$args);
+        $i = get_avatar($this->getId(),$size,$this->getDisplayName(),'',$args);
         return $i;
 
     }

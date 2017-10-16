@@ -10,20 +10,37 @@ namespace Tops\wordpress;
 
 // require_once(\Tops\sys\TPath::getFileRoot().'/wp-admin/includes/user.php');
 
-use Tops\sys\IPermissionsManager;
-use Tops\sys\TPermission;
+use Tops\db\model\repository\PermissionsRepository;
+use Tops\db\TDBPermissionsManager;
+use Tops\sys\TPermissionsManager;
 use Tops\sys\TStrings;
 use function wp_roles;
 
-class WordpressPermissionsManager implements IPermissionsManager
+class WordpressPermissionsManager extends TDBPermissionsManager
 {
+    const handleFormat = TStrings::keyFormat;
+    /**
+     * @var PermissionsRepository
+     */
+    private $repository;
 
-    const guestRoleName = 'anonymous';
-    public static $roleKeyFormat = TStrings::keyFormat;
-    public static $roleDescriptionFormat = TStrings::wordCapsFormat;
-    public static $permissionKeyFormat = TStrings::keyFormat;
+    public function getRoleHandleFormat()
+    {
+        return self::handleFormat;
+    }
 
+    public function getPermissionHandleFormat() {
+        // native identifier
+        return self::handleFormat;
+    }
 
+    private function getRepository()
+    {
+        if (!isset($this->repository)) {
+            $this->repository = new PermissionsRepository();
+        }
+        return $this->repository;
+    }
 
     /**
      * @param string $roleName
@@ -32,9 +49,16 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function addRole($roleName,$roleDescription=null)
     {
-        $roleKey = TStrings::convertNameFormat($roleName,self::$roleKeyFormat);
-        $roleDescription = TStrings::convertNameFormat($roleName,self::$roleDescriptionFormat);
-        $result = wp_roles()->add_role($roleKey, __($roleDescription), array('read' => true));
+        if ($roleName == $this->getGuestRole() || $roleName == $this->getAuthenticatedRole()) {
+            return true;
+        }
+        $roleHandle = $this->formatRoleHandle($roleName);
+        $existing = $this->getWpRole($roleHandle);
+        if (!empty($existing)) {
+            return false;
+        }
+        $roleDescription = $this->formatRoleDescription($roleDescription);
+        $result = wp_roles()->add_role($roleHandle, __($roleDescription), array('read' => true));
         return $result !== null;
     }
 
@@ -44,7 +68,10 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function removeRole($roleName)
     {
-        $roleName = TStrings::convertNameFormat($roleName,self::$roleKeyFormat);
+        if ($roleName == $this->getGuestRole() || $roleName == $this->getAuthenticatedRole()) {
+            return true;
+        }
+        $roleName = $this->formatRoleHandle($roleName);
         $wpRoles = wp_roles();
         $role = $this->getWpRole($roleName);
         if( !empty($role)){
@@ -59,64 +86,60 @@ class WordpressPermissionsManager implements IPermissionsManager
      */
     public function getRoles()
     {
+        $result = $this->getActualRoles(TPermissionsManager::keyFormat);
+        $virtualRoles = $this->getVirtualRoles();
+        $result[] = $virtualRoles[self::authenticatedRole];
+        $result[] = $virtualRoles[self::guestRole];
+
+        return $result;
+    }
+
+    // private
+
+    public function getActualRoles($format = self::handleFormat) {
         $result = array();
         $roleObjects =  wp_roles()->roles;
-        // \get_editable_roles();
         unset($roleObjects['administrator']);
-
         foreach ($roleObjects as $roleName => $roleObject) {
-            $item = new \stdClass();
-            $item->Name = $roleObject['name'];
-            $item->Value = $roleName;
-            $result[] = $item;
+            $roleObject = $this->createRoleObject($roleName,$roleObject['name']);
+            if (!empty($format)) {
+                $roleObject->Key = TStrings::convertNameFormat($roleName,$format);
+                $result[] = $roleObject;
+            }
         }
         return $result;
     }
 
-    /**
-     * @return TPermission[]
-     */
-    public function getPermissions()
-    {
-        return []; // not implemented
-    }
-
-    public function getPermission($permissionName)
-    {
-        return null; // not implemented
-    }
-
     private function getWpRole($roleName) {
-        $roleKey = TStrings::convertNameFormat($roleName,self::$roleKeyFormat);
-        return wp_roles()->get_role($roleKey);
+        $roleHandle = $this->formatRoleHandle($roleName);
+        return wp_roles()->get_role($roleHandle);
     }
 
     /**
      * @param string $roleName
      * @param string $permissionName
      * @return bool
-     */
     public function assignPermission($roleName, $permissionName)
     {
+        if ($roleName == $this->getGuestRole() || $roleName == $this->getAuthenticatedRole()) {
+            return $this->getRepository()->assignPermission($roleName, $permissionName);
+        }
         $role = $this->getWpRole($roleName);
-        $permissionKey = TStrings::convertNameFormat($permissionName,self::$permissionKeyFormat);
+        $permissionKey = TStrings::convertNameFormat($permissionName, self::$permissionKeyFormat);
         $role->add_cap($permissionKey);
         return true;
     }
-
-    public function addPermission($name, $description)
-    {
-        // not implemented permissions added by assignment
-    }
-
+     */
 
     /**
      * @param string $roleName
      * @param string $permissionName
      * @return bool
-     */
     public function revokePermission($roleName, $permissionName)
     {
+        if ($roleName == $this->getGuestRole() || $roleName == $this->getAuthenticatedRole() ) {
+            return $this->getRepository()->revokePermission($roleName,$permissionName);
+        }
         $role = $this->getWpRole($roleName);
         $permissionKey = TStrings::convertNameFormat($permissionName,self::$permissionKeyFormat);
         $role->remove_cap($permissionKey);
@@ -136,4 +159,5 @@ class WordpressPermissionsManager implements IPermissionsManager
         $permissionKey = TStrings::convertNameFormat($permissionName,self::$permissionKeyFormat);
         return current_user_can($permissionKey);
     }
+     */
 }

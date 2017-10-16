@@ -10,6 +10,7 @@ namespace PeanutTest\scripts;
 
 
 
+use Tops\sys\TPermissionsManager;
 use Tops\sys\TUser;
 use Tops\wordpress\TWordpressUser;
 
@@ -82,11 +83,11 @@ class UserTest extends TestScript
         print "Mail admin? " . ($actual ? 'Yes' : 'No') . "\n";
         $this->assert($actual, 'Not member of mail admin');
 
-        $actual = $user->isAuthorized(TUser::mailAdminPermissionName);
+        $actual = $user->isAuthorized(TPermissionsManager::mailAdminPermissionName);
         $this->assert($actual, 'cannot administer mail');
         print "Can administer mail? " . ($actual ? 'Yes' : 'No') . "\n";
 
-        $actual = $user->isAuthorized(TUser::appAdminPermissionName);
+        $actual = $user->isAuthorized(TPermissionsManager::appAdminPermissionName);
         $this->assert(!$actual, 'Not expected to administer peanut');
         print "Can administer peanut? " . ($actual ? 'Yes' : 'No') . "\n";
 

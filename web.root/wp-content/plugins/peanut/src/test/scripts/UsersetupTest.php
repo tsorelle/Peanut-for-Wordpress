@@ -9,6 +9,7 @@
 namespace PeanutTest\scripts;
 
 
+use Tops\sys\TPermissionsManager;
 use Tops\sys\TStrings;
 use Tops\sys\TUser;
 use Tops\wordpress\TWordpressUser;
@@ -30,7 +31,7 @@ class UsersetupTest extends TestScript
                 return false;
             }
         }
-        $value = TStrings::convertNameFormat($value,TStrings::keyFormat);
+        $value = TStrings::convertNameFormat($value,TStrings::dashedFormat);
         foreach ($this->roles as $role) {
             if ($role->Value === $value) {
                 return true;
@@ -78,10 +79,23 @@ class UsersetupTest extends TestScript
         $testRole = 'test role';
         $roleCount = $this->addRole($testRole,$roleCount,true);
         $roleCount = $this->removeRole($testRole,$roleCount);
-        $roleCount = $this->addRole(TUser::appAdminRoleName,$roleCount);
-        $roleCount = $this->addRole(TUser::mailAdminRoleName,$roleCount);
-        $roleCount = $this->addRole(TWordpressUser::WordpressGuestRole,$roleCount);
-        $this->manager->assignPermission(TUser::mailAdminRoleName,TUser::mailAdminPermissionName);
+        $roleCount = $this->addRole(TPermissionsManager::appAdminRoleName,$roleCount);
+        $roleCount = $this->addRole(TPermissionsManager::mailAdminRoleName,$roleCount);
+        $roleCount = $this->addRole(TPermissionsManager::directoryAdminRoleName,$roleCount);
+
+        $this->manager->addPermission(TPermissionsManager::mailAdminPermissionName);
+        $this->manager->addPermission(TPermissionsManager::appAdminPermissionName);
+        $this->manager->addPermission(TPermissionsManager::directoryAdminPermissionName);
+        $this->manager->addPermission(TPermissionsManager::viewDirectoryPermissionName);
+        $this->manager->addPermission(TPermissionsManager::updateDirectoryPermissionName);
+
+        $this->manager->assignPermission(TPermissionsManager::mailAdminRoleName,TPermissionsManager::mailAdminPermissionName);
+        $this->manager->assignPermission(TPermissionsManager::appAdminRoleName,TPermissionsManager::mailAdminPermissionName);
+        $this->manager->assignPermission(TPermissionsManager::appAdminRoleName,TPermissionsManager::appAdminPermissionName);
+        $this->manager->assignPermission(TPermissionsManager::authenticatedRole,TPermissionsManager::viewDirectoryPermissionName);
+        $this->manager->assignPermission(TPermissionsManager::mailAdminRoleName,TPermissionsManager::updateDirectoryPermissionName);
+        $this->manager->assignPermission(TPermissionsManager::appAdminRoleName,TPermissionsManager::directoryAdminPermissionName);
+        $this->manager->assignPermission(TPermissionsManager::directoryAdminRoleName,TPermissionsManager::directoryAdminPermissionName);
 
         print "\n".($this->continueTest ? 'Ready for "user" test. Add your test user to the mail admin role' : 'Setup failed')."\n";
 
