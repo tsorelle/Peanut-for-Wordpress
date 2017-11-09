@@ -40,23 +40,17 @@ class TWordpressUser extends TAbstractUser
 
 
 
-    // overrides base method
-    public function getProfileValue($key)
+    protected function getCmsProfileValue($key)
     {
-        $result = parent::getProfileValue($key);
-        $key = $this->formatProfileKey($key);
-        if ($result !== false) {
-            $user = $this->getUser();
-            if ($user !== false) {
-                $wpKey = $this->formatPermissionHandle($key);
-                    // TStrings::ConvertNameFormat($key,TStrings::keyFormat);
-                if ($user->has_prop($wpKey)) {
-                    return $user->get($wpKey);
-                }
+        $user = $this->getUser();
+        if ($user !== false) {
+            $key = $this->formatProfileKey($key);
+            $wpKey = $this->formatPermissionHandle($key);
+            if ($user->has_prop($wpKey)) {
+                return $user->get($wpKey);
             }
         }
-        return empty($result) ? '' : $result;
-
+        return '';
     }
 
     public function setUser(WP_User $user) {
