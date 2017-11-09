@@ -40,17 +40,23 @@ class TWordpressUser extends TAbstractUser
 
 
 
-    protected function getCmsProfileValue($key)
+    // overrides base method
+    public function getProfileValue($key)
     {
-        $user = $this->getUser();
-        if ($user !== false) {
-            $key = $this->formatProfileKey($key);
-            $wpKey = $this->formatPermissionHandle($key);
-            if ($user->has_prop($wpKey)) {
-                return $user->get($wpKey);
+        $result = parent::getProfileValue($key);
+        $key = $this->formatProfileKey($key);
+        if ($result !== false) {
+            $user = $this->getUser();
+            if ($user !== false) {
+                $wpKey = $this->formatPermissionHandle($key);
+                    // TStrings::ConvertNameFormat($key,TStrings::keyFormat);
+                if ($user->has_prop($wpKey)) {
+                    return $user->get($wpKey);
+                }
             }
         }
-        return '';
+        return empty($result) ? '' : $result;
+
     }
 
     public function setUser(WP_User $user) {
@@ -63,6 +69,7 @@ class TWordpressUser extends TAbstractUser
         else {
             unset($this->user);
         }
+        $this->updateLanguage();
     }
 
     /**
@@ -73,6 +80,7 @@ class TWordpressUser extends TAbstractUser
     {
         $user = get_userdata($id);
         $this->setUser($user);
+
     }
 
     /**
