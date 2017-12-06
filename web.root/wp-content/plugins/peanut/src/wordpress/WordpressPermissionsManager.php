@@ -57,6 +57,9 @@ class WordpressPermissionsManager extends TDBPermissionsManager
         if (!empty($existing)) {
             return false;
         }
+        if ($roleDescription === null) {
+            $roleDescription = $roleName;
+        }
         $roleDescription = $this->formatRoleDescription($roleDescription);
         $result = wp_roles()->add_role($roleHandle, __($roleDescription), array('read' => true));
         return $result !== null;
