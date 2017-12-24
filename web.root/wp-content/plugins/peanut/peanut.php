@@ -20,6 +20,7 @@ use Peanut\sys\ViewModelManager;
 
 add_action( 'init', 'peanut_initialize' );
 function peanut_initialize() {
+    // print("\ninitializing\n");
     $fileRoot = realpath(__DIR__.'/../../..');
     include_once ("$fileRoot/application/config/peanut-bootstrap.php");
     \Peanut\Bootstrap::initialize($fileRoot);

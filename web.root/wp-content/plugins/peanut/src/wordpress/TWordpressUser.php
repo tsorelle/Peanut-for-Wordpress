@@ -265,4 +265,14 @@ class TWordpressUser extends TAbstractUser
         return $i;
 
     }
+
+    public function signIn($username, $password = null)
+    {
+        $user = wp_signon([
+            'user_login' => $username,
+            'user_password' => $password
+        ],false);
+
+        return !is_wp_error($user);
+    }
 }
