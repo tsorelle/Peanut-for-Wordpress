@@ -16,6 +16,7 @@ class UserloginTest extends TestScript
 
     public function execute()
     {
+        $user = wp_get_current_user();
         $username = 'ScriptMasterKF89289';
         if (TUser::getCurrent()->isAuthenticated()) {
             exit('Log out before running test');
@@ -34,7 +35,16 @@ class UserloginTest extends TestScript
 
         $actual = TUser::SignIn($username,'M6tJb@1*yoIf97cFCQlDFmwJ');
         $this->assert($actual,'Not logged in');
-        $actual = TUser::getCurrent()->getUserName();
+
+        $current = TUser::getCurrent();
+        $user = wp_get_current_user();
+        $expected = $current->getId();
+        $this->assertEquals($expected,$user->ID,"Peanut user does not match WP user.");
+        $actual = $current->getUserName();
         $this->assertEquals($username,$actual,'Wrong user is current');
+        $actual = $current->isAdmin();
+        $this->assert($actual,'Not admin');
+
+
     }
 }

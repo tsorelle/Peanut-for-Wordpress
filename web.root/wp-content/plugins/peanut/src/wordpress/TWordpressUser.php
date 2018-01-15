@@ -272,7 +272,10 @@ class TWordpressUser extends TAbstractUser
             'user_login' => $username,
             'user_password' => $password
         ],false);
-
-        return !is_wp_error($user);
+        if (is_wp_error($user)) {
+            return false;
+        }
+        wp_set_current_user($user->ID);
+        return true;
     }
 }

@@ -14,6 +14,7 @@ class SmoketestTest extends TestScript
 
     public function execute()
     {
+
         $this->assert(true,'Testing works');
     }
 }
